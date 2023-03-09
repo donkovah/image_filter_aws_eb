@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import {
   filterImageFromURL,
@@ -16,25 +16,25 @@ import {
 
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/", async (req, res) => {
+  app.get("/", async (req: Request, res: Response) => {
     res.send("try GET /filteredimage?image_url={{}}");
   });
 
-  app.get("/filteredimage", async (req, res) => {
+  app.get("/filteredimage", async (req: Request, res: Response) => {
     if (!req.query.image_url) {
-      return res.json({ error: "No image url in query parameter" }).status(404);
+      return res.json({ error: "No image url in query parameter" }).status(400);
     }
     try {
-      const imagePath = await filterImageFromURL(
+      const imagePath: string = await filterImageFromURL(
         req.query["image_url"] as string
       );
 
-      res.sendFile(imagePath);
-      const imageFiles = await readLocalFiles();
+      res.status(200).sendFile(imagePath);
+      const imageFiles: string[] = await readLocalFiles();
 
       await deleteLocalFiles(imageFiles);
     } catch (error) {
-      return res.json({ error }).status(500);
+      return res.json({ error }).status(422);
     }
   });
 
